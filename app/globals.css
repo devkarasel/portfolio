@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-bebas: 'Bebas Neue';
+  --font-jetbrains: 'JetBrains Mono';
+  --font-dm-sans: 'DM Sans';
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #FF4D00 #07080A;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track { background: #07080A; }
+::-webkit-scrollbar-thumb { background: #FF4D00; border-radius: 2px; }
+
+body {
+  background-color: #07080A;
+  color: #E8E9EC;
+  font-family: var(--font-dm-sans), sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Noise overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Grid background ── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255,77,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,77,0,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── Glitch text ── */
+.glitch {
+  position: relative;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+}
+.glitch::before {
+  color: #00E5FF;
+  animation: glitch1 3s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+.glitch::after {
+  color: #FF4D00;
+  animation: glitch2 3s infinite;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch1 {
+  0%, 85%, 100% { transform: translate(0); }
+  90% { transform: translate(-2px, 1px); }
+  95% { transform: translate(2px, -1px); }
+}
+@keyframes glitch2 {
+  0%, 85%, 100% { transform: translate(0); }
+  90% { transform: translate(2px, -1px); }
+  95% { transform: translate(-2px, 1px); }
+}
+
+/* ── Scanline effect ── */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.07) 3px,
+    rgba(0,0,0,0.07) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Tag pill ── */
+.tag {
+  @apply inline-block px-3 py-1 text-xs font-mono border border-border text-muted rounded-sm;
+  letter-spacing: 0.08em;
+}
+.tag-accent {
+  @apply inline-block px-3 py-1 text-xs font-mono border border-accent/40 text-accent rounded-sm bg-accent/5;
+  letter-spacing: 0.08em;
+}
+
+/* ── Section heading ── */
+.section-label {
+  @apply font-mono text-xs text-accent tracking-[0.25em] uppercase;
+}
+
+/* ── Orange underline ── */
+.accent-line {
+  display: inline-block;
+  position: relative;
+}
+.accent-line::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #FF4D00;
+}
+
+/* ── Card hover ── */
+.project-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(255,77,0,0.12);
+  border-color: rgba(255,77,0,0.4) !important;
+}
+
+/* ── Skill bar ── */
+.skill-bar-fill {
+  animation: skillFill 1.2s ease forwards;
+  transform-origin: left;
+}
+@keyframes skillFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ── Button ── */
+.btn-primary {
+  @apply relative inline-flex items-center gap-2 px-7 py-3 font-mono text-sm tracking-widest uppercase text-bg bg-accent overflow-hidden;
+  transition: background 0.2s;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover::after { opacity: 0.1; }
+
+.btn-ghost {
+  @apply relative inline-flex items-center gap-2 px-7 py-3 font-mono text-sm tracking-widest uppercase border border-text/30 text-text overflow-hidden;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover {
+  border-color: #FF4D00;
+  color: #FF4D00;
+}
+
+/* ── Input ── */
+.form-input {
+  @apply w-full bg-surface border border-border text-text font-mono text-sm px-4 py-3 outline-none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: #FF4D00; }
+.form-input::placeholder { color: #4A4F5C; }
