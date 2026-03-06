@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import crypto from 'crypto'
-
-function makeToken(password: string): string {
-  return crypto.createHmac('sha256', 'dk-portfolio-secret').update(password).digest('hex')
-}
+import { makeToken } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json()
@@ -20,7 +16,7 @@ export async function POST(req: NextRequest) {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    maxAge: 60 * 60 * 24, // 24 hours
+    maxAge: 60 * 60 * 24,
     path: '/',
   })
 
@@ -31,11 +27,4 @@ export async function DELETE() {
   const cookieStore = await cookies()
   cookieStore.delete('admin_token')
   return NextResponse.json({ success: true })
-}
-
-export function validateToken(token: string | undefined): boolean {
-  if (!token) return false
-  const adminPass = process.env.ADMIN_PASSWORD || 'admin123'
-  const expected = crypto.createHmac('sha256', 'dk-portfolio-secret').update(adminPass).digest('hex')
-  return token === expected
 }

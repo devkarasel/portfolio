@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import nodemailer from 'nodemailer'
-import { validateToken } from '../login/route'
+import { isAuthenticated } from '@/lib/auth'
 import { markReplied } from '@/lib/messages'
 
-async function auth() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('admin_token')?.value
-  return validateToken(token)
-}
-
 export async function POST(req: NextRequest) {
-  if (!(await auth())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await isAuthenticated())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const { messageId, to, toName, subject, body } = await req.json()
 
-  if (!to || !body) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+  if (!to || !body) {
+    return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+  }
 
   if (!process.env.SMTP_HOST || !process.env.SMTP_PASS) {
-    return NextResponse.json({ error: 'SMTP not configured. Add SMTP_HOST and SMTP_PASS to .env.local' }, { status: 503 })
+    return NextResponse.json(
+      { error: 'SMTP not configured. Add SMTP_HOST and SMTP_PASS to your environment variables.' },
+      { status: 503 }
+    )
   }
 
   try {
@@ -26,7 +26,10 @@ export async function POST(req: NextRequest) {
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '465'),
       secure: parseInt(process.env.SMTP_PORT || '465') === 465,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
     })
 
     await transporter.sendMail({
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
         ${body.replace(/\n/g, '<br/>')}
         <br/><br/>
         <hr style="border:none;border-top:1px solid #eee;margin:24px 0"/>
-        <p style="color:#999;font-size:12px">devkarasel · Portfolio</p>
+        <p style="color:#999;font-size:12px">devkarasel · devrasel.me</p>
       </div>`,
     })
 
